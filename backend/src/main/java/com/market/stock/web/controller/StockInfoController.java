@@ -5,6 +5,7 @@ import com.market.stock.model.vo.DailyIndexVo;
 import com.market.stock.model.vo.PageParam;
 import com.market.stock.model.vo.PageVo;
 import com.market.stock.model.vo.UserVo;
+import com.market.stock.service.StockSelectedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ public class StockInfoController extends BaseController {
     @Autowired
     private StockService stockService;
 
+    @Autowired
+    private StockSelectedService stockSelectedService;
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @RequestMapping("stockList")
@@ -41,11 +45,7 @@ public class StockInfoController extends BaseController {
 
     @RequestMapping(value="dailyStock/{code}", method=RequestMethod.GET)
     public DailyIndexVo getDailyIndex(@PathVariable String code) {
-        if (!StringUtils.hasLength(code)) {
-            FieldInputException e = new FieldInputException();
-            e.addError("code", "stock code could not be null");
-            throw e;
-        }
+        checkStockParam(code);
         DailyIndexVo res = stockService.getDailyIndexByCode(code);
         if(Objects.isNull(res)) {
             FieldInputException e = new FieldInputException();
@@ -53,5 +53,37 @@ public class StockInfoController extends BaseController {
             throw e;
         }
         return res;
+    }
+
+    @RequestMapping(value="selectStock/{code}", method=RequestMethod.GET)
+    public void selectStock(@PathVariable String code) {
+        checkStockParam(code);
+        DailyIndexVo dailyIndexVo = stockService.getDailyIndexByCode(code);
+        if(Objects.isNull(dailyIndexVo)) {
+            FieldInputException e = new FieldInputException();
+            e.addError("code", "this stock does not exist, check it again");
+            throw e;
+        }
+        stockSelectedService.add(dailyIndexVo);
+    }
+
+    @RequestMapping(value="selectStock/cancel/{code}", method=RequestMethod.GET)
+    public void deleteSelectedStock(@PathVariable String code) {
+        checkStockParam(code);
+        DailyIndexVo dailyIndexVo = stockService.getDailyIndexByCode(code);
+        if(Objects.isNull(dailyIndexVo)) {
+            FieldInputException e = new FieldInputException();
+            e.addError("code", "this stock does not exist, check it again");
+            throw e;
+        }
+        stockSelectedService.deleteByCode(code);
+    }
+
+    private void checkStockParam(String code){
+        if (!StringUtils.hasLength(code)) {
+            FieldInputException e = new FieldInputException();
+            e.addError("code", "stock code could not be null");
+            throw e;
+        }
     }
 }
