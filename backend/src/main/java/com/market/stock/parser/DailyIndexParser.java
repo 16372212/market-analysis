@@ -45,6 +45,7 @@ public class DailyIndexParser {
             return null;
         }
         String code = strs[0].substring(strs[0].lastIndexOf('_') + 1, strs[0].lastIndexOf('='));
+        String name = strs[0];
         BigDecimal openingPrice = new BigDecimal(strs[1]);
         BigDecimal preClosingPrice = new BigDecimal(strs[2]);
         BigDecimal closingPrice = new BigDecimal(strs[3]);
@@ -60,6 +61,7 @@ public class DailyIndexParser {
         }
         DailyIndex dailyIndex = new DailyIndex();
         dailyIndex.setCode(code);
+        dailyIndex.setName(name);
         dailyIndex.setOpeningPrice(openingPrice);
         dailyIndex.setPreClosingPrice(preClosingPrice);
         dailyIndex.setClosingPrice(closingPrice);

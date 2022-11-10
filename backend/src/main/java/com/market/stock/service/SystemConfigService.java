@@ -8,10 +8,6 @@ public interface SystemConfigService {
 
     boolean isMock();
 
-    boolean isApplyNewConvertibleBond();
-
-    boolean isCr();
-
     List<SystemConfig> getAll();
 
 }

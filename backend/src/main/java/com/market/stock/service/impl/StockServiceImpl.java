@@ -5,10 +5,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSON;
 import com.market.stock.dao.DailyIndexDao;
 import com.market.stock.dao.StockInfoDao;
 import com.market.stock.dao.StockLogDao;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +62,9 @@ public class StockServiceImpl implements StockService {
 
     @Autowired
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public List<StockInfo> getAll() {
@@ -102,6 +108,15 @@ public class StockServiceImpl implements StockService {
                     .collect(Collectors.toList());
             stockLogDao.setStockIdByCodeType(newCodeList, StockConsts.StockLogType.New.value());
         }
+
+        // update Redis
+        needAddedList.forEach( stockInfo -> {
+            redisTemplate.opsForValue().set(stockInfo.getCode(), JSON.toJSONString(stockInfo), 20, TimeUnit.SECONDS);
+        });
+
+        needUpdatedList.forEach(stockInfo -> {
+            redisTemplate.opsForValue().set(stockInfo.getCode(), JSON.toJSONString(stockInfo), 20, TimeUnit.SECONDS);
+        });
     }
 
     private void add(List<StockInfo> list) {
@@ -194,7 +209,14 @@ public class StockServiceImpl implements StockService {
     @Cacheable(value = StockConsts.CACHE_KEY_DATA_STOCK, key = "#code")
     @Override
     public StockInfo getStockByFullCode(String code) {
-        StockInfo stockInfo = stockInfoDao.getStockByFullCode(code);
+        String jsonString = (String) redisTemplate.opsForValue().get(code);
+        StockInfo stockInfo = JSON.parseObject(jsonString, StockInfo.class);
+        if (Objects.nonNull(stockInfo)) {
+            logger.info("从Redis中查询到数据 {}: {}", stockInfo.getName(), stockInfo.getCode());
+            return stockInfo;
+        }
+
+        stockInfo = stockInfoDao.getStockByFullCode(code);
         if (stockInfo == null) {
             stockInfo = new StockInfo();
             stockInfo.setAbbreviation("wlrzq");
@@ -203,6 +225,8 @@ public class StockServiceImpl implements StockService {
             stockInfo.setExchange(StockConsts.Exchange.SH.getName());
             stockInfo.setState(StockConsts.StockState.Terminated.value());
             stockInfo.setType(StockConsts.StockType.A.value());
+        } else {
+            redisTemplate.opsForValue().set(code, JSON.toJSONString(stockInfo), 20, TimeUnit.SECONDS);
         }
         return stockInfo;
     }
@@ -216,6 +240,23 @@ public class StockServiceImpl implements StockService {
     @Override
     public List<DailyIndex> getDailyIndexListByDate(Date date) {
         return dailyIndexDao.getDailyIndexListByDate(date);
+    }
+
+    @Override
+    public DailyIndexVo getDailyIndexByCode(String code) {
+        DailyIndex dailyIndex = stockCrawlerService.getDailyIndex(code);
+        DailyIndexVo dailyIndexVo = new DailyIndexVo();
+        if (Objects.isNull(dailyIndex)) {
+            return dailyIndexVo;
+        }
+        dailyIndexVo.setCode(code);
+        dailyIndexVo.setDate(dailyIndex.getDate());
+        dailyIndexVo.setHighestPrice(dailyIndex.getHighestPrice());
+        dailyIndexVo.setClosingPrice(dailyIndex.getClosingPrice());
+        dailyIndexVo.setLowestPrice(dailyIndex.getLowestPrice());
+        dailyIndexVo.setOpeningPrice(dailyIndex.getOpeningPrice());
+        dailyIndexVo.setPreClosingPrice(dailyIndex.getPreClosingPrice());
+        return dailyIndexVo;
     }
 
     @Override

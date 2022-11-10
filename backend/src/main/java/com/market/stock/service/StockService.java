@@ -34,6 +34,8 @@ public interface StockService {
 
     List<DailyIndex> getDailyIndexListByDate(Date date);
 
+    DailyIndexVo getDailyIndexByCode(String code);
+
     void fixDailyIndex(int date, List<String> codeList);
 
 }

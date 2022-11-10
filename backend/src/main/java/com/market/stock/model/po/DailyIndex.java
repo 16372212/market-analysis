@@ -9,6 +9,7 @@ public class DailyIndex extends BaseModel {
 
     private String code;
     private Date date;
+    private String name;
     private BigDecimal preClosingPrice;
     private BigDecimal openingPrice;
     private BigDecimal highestPrice;
@@ -33,6 +34,10 @@ public class DailyIndex extends BaseModel {
     public void setDate(Date date) {
         this.date = date;
     }
+
+    public void setName(String name) { this.name = name; }
+
+    public String getName() { return name; }
 
     public BigDecimal getPreClosingPrice() {
         return preClosingPrice;
