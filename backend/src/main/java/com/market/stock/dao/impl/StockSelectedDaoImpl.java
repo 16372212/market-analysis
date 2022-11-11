@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.market.stock.model.po.HolidayCalendar;
 import com.market.stock.model.po.StockLog;
 import com.market.stock.model.vo.DailyIndexVo;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -49,6 +50,14 @@ public class StockSelectedDaoImpl extends BaseDao implements StockSelectedDao {
     @Override
     public void deleteByCode(String code) {
         jdbcTemplate.update("delete from stock_selected where code = ?", code);
+    }
+
+    @Override
+    public boolean isNotExist(String code) {
+        List<StockSelected> list = jdbcTemplate.query(
+                "select code from stock_selected where code = ?",
+                BeanPropertyRowMapper.newInstance(StockSelected.class), code);
+        return list.isEmpty();
     }
 
 }

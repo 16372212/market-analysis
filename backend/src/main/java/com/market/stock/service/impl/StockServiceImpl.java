@@ -256,6 +256,7 @@ public class StockServiceImpl implements StockService {
         dailyIndexVo.setLowestPrice(dailyIndex.getLowestPrice());
         dailyIndexVo.setOpeningPrice(dailyIndex.getOpeningPrice());
         dailyIndexVo.setPreClosingPrice(dailyIndex.getPreClosingPrice());
+        dailyIndexVo.setRurnoverRate(dailyIndex.getRurnoverRate());
         return dailyIndexVo;
     }
 

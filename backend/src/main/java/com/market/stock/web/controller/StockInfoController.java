@@ -1,10 +1,7 @@
 package com.market.stock.web.controller;
 
 import com.market.stock.exception.FieldInputException;
-import com.market.stock.model.vo.DailyIndexVo;
-import com.market.stock.model.vo.PageParam;
-import com.market.stock.model.vo.PageVo;
-import com.market.stock.model.vo.UserVo;
+import com.market.stock.model.vo.*;
 import com.market.stock.service.StockSelectedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +53,7 @@ public class StockInfoController extends BaseController {
     }
 
     @RequestMapping(value="selectStock/{code}", method=RequestMethod.GET)
-    public void selectStock(@PathVariable String code) {
+    public CommonResponse selectStock(@PathVariable String code) {
         checkStockParam(code);
         DailyIndexVo dailyIndexVo = stockService.getDailyIndexByCode(code);
         if(Objects.isNull(dailyIndexVo)) {
@@ -65,10 +62,11 @@ public class StockInfoController extends BaseController {
             throw e;
         }
         stockSelectedService.add(dailyIndexVo);
+        return CommonResponse.buildResponse("success");
     }
 
     @RequestMapping(value="selectStock/cancel/{code}", method=RequestMethod.GET)
-    public void deleteSelectedStock(@PathVariable String code) {
+    public CommonResponse deleteSelectedStock(@PathVariable String code) {
         checkStockParam(code);
         DailyIndexVo dailyIndexVo = stockService.getDailyIndexByCode(code);
         if(Objects.isNull(dailyIndexVo)) {
@@ -77,6 +75,7 @@ public class StockInfoController extends BaseController {
             throw e;
         }
         stockSelectedService.deleteByCode(code);
+        return CommonResponse.buildResponse("success");
     }
 
     private void checkStockParam(String code){

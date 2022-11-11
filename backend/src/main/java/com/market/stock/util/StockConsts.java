@@ -10,6 +10,8 @@ public class StockConsts {
 
     public static final String CACHE_KEY_PREFIX = "stock:";
 
+    public static final String CACHE_SELECT_PREFIX = "select:";
+
     private static final String CACHE_KEY_DATA_PREFIX = CACHE_KEY_PREFIX + "data:";
     public static final String CACHE_KEY_DATA_STOCK = StockConsts.CACHE_KEY_DATA_PREFIX + "stock";
     public static final String CACHE_KEY_DATA_BUSINESS_DATE = StockConsts.CACHE_KEY_DATA_PREFIX + "businessDate";

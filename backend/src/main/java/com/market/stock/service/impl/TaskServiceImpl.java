@@ -225,7 +225,7 @@ public class TaskServiceImpl implements TaskService {
 
         StringBuilder sb = new StringBuilder();
         for (StockSelected stockSelected : selectList) {
-            String code = stockSelected.getCode();
+            String code = stockSelected.getCode().substring(2);
             DailyIndex dailyIndex = dailyIndexList.stream().filter(d -> d.getCode().contains(stockSelected.getCode())).findAny().orElse(null);
             if (dailyIndex == null) {
                 continue;
