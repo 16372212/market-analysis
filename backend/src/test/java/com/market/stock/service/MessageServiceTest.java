@@ -11,12 +11,12 @@ public class MessageServiceTest {
     private MessageService messageService;
 
     @Test
-    public void testSend() {
+    public void testSend() throws Exception {
         messageService.send("[大笑]");
     }
 
     @Test
-    public void testSendMd() {
+    public void testSendMd() throws Exception {
         messageService.sendMd("daily", "### code 300542");
     }
 

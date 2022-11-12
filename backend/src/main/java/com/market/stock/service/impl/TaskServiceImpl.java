@@ -80,7 +80,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void executeTask(ExecuteInfo executeInfo) {
+    public void executeTask(ExecuteInfo executeInfo) throws Exception {
         executeInfo.setStartTime(new Date());
         executeInfo.setMessage("");
         int id = executeInfo.getTaskId();
@@ -218,7 +218,7 @@ public class TaskServiceImpl implements TaskService {
         ).collect(Collectors.toList());
     }
 
-    private void runTicker() {
+    private void runTicker() throws Exception {
         List<StockSelected> selectList = stockSelectedService.getList();
         List<String> codeList = selectList.stream().map(v -> StockUtil.getFullCode(v.getCode())).collect(Collectors.toList());
         List<DailyIndex> dailyIndexList = stockCrawlerService.getDailyIndex(codeList);

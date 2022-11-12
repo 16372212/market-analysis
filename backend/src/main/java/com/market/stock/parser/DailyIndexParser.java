@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.market.stock.util.StockUtil;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Component;
 
@@ -69,7 +70,8 @@ public class DailyIndexParser {
         dailyIndex.setLowestPrice(lowestPrice);
         dailyIndex.setTradingVolume(tradingVolume);
         dailyIndex.setTradingValue(tradingValue);
-        dailyIndex.setRurnoverRate(BigDecimal.ZERO);
+        double rate = Math.abs(StockUtil.calcIncreaseRate(dailyIndex.getClosingPrice(), dailyIndex.getPreClosingPrice()).doubleValue());
+        dailyIndex.setRurnoverRate(BigDecimal.valueOf(rate));
         dailyIndex.setDate(date);
 
         return dailyIndex;

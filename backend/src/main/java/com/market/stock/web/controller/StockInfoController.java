@@ -1,20 +1,18 @@
 package com.market.stock.web.controller;
 
 import com.market.stock.exception.FieldInputException;
+import com.market.stock.model.po.StockSelected;
 import com.market.stock.model.vo.*;
 import com.market.stock.service.StockSelectedService;
+import com.market.stock.service.impl.MessageServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.market.stock.model.po.StockInfo;
 import com.market.stock.service.StockService;
-import com.market.stock.model.po.DailyIndex;
 
 import java.util.Objects;
 
@@ -22,24 +20,39 @@ import java.util.Objects;
 @RequestMapping("report")
 public class StockInfoController extends BaseController {
 
+    private static final Logger logger = LoggerFactory.getLogger(StockInfoController.class);
+
     @Autowired
     private StockService stockService;
 
     @Autowired
     private StockSelectedService stockSelectedService;
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
+    /**
+     * 列出股票列表，方便用户查阅股票对应的代码
+     * @param pageParam
+     * @return
+     */
     @RequestMapping("stockList")
     public PageVo<StockInfo> getStockList(PageParam pageParam) {
         return stockService.getStockList(pageParam);
     }
 
+    /**
+     * 列出股票五档行情列表
+     * @param pageParam
+     * @return
+     */
     @RequestMapping("dailyIndexList")
     public PageVo<DailyIndexVo> getDailyIndexList(PageParam pageParam) {
         return stockService.getDailyIndexList(pageParam);
     }
 
+    /**
+     * 查看某股票五档行情数据
+     * @param code
+     * @return
+     */
     @RequestMapping(value="dailyStock/{code}", method=RequestMethod.GET)
     public DailyIndexVo getDailyIndex(@PathVariable String code) {
         checkStockParam(code);
@@ -52,8 +65,13 @@ public class StockInfoController extends BaseController {
         return res;
     }
 
-    @RequestMapping(value="selectStock/{code}", method=RequestMethod.GET)
-    public CommonResponse selectStock(@PathVariable String code) {
+    /**
+     * 用户订阅某股票。先判断该股票是否存在，如果存在则定义该股票
+     * @param code
+     * @return
+     */
+    @PostMapping("selectStock")
+    public CommonResponse selectStock(String code, String name) {
         checkStockParam(code);
         DailyIndexVo dailyIndexVo = stockService.getDailyIndexByCode(code);
         if(Objects.isNull(dailyIndexVo)) {
@@ -61,10 +79,17 @@ public class StockInfoController extends BaseController {
             e.addError("code", "this stock does not exist, check it again");
             throw e;
         }
+        dailyIndexVo.setName(name);
         stockSelectedService.add(dailyIndexVo);
+        StockInfoController.logger.info("user book stock: {}, {}, {}", dailyIndexVo.getRurnoverRate(), name, code);
         return CommonResponse.buildResponse("success");
     }
 
+    /**
+     * 用户取消订阅某股票，判断用户输入的股票代码是否存在，若存在则取消订阅。
+     * @param code
+     * @return
+     */
     @RequestMapping(value="selectStock/cancel/{code}", method=RequestMethod.GET)
     public CommonResponse deleteSelectedStock(@PathVariable String code) {
         checkStockParam(code);
@@ -84,5 +109,10 @@ public class StockInfoController extends BaseController {
             e.addError("code", "stock code could not be null");
             throw e;
         }
+    }
+
+    @RequestMapping(value="selectStock/list", method=RequestMethod.GET)
+    public PageVo<StockSelected> SelectedStockList() {
+        return new PageVo<>(stockSelectedService.getList(), 10);
     }
 }

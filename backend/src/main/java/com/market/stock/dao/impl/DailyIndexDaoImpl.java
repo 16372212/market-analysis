@@ -11,7 +11,10 @@ import com.market.stock.dao.DailyIndexDao;
 import com.market.stock.model.vo.DailyIndexVo;
 import com.market.stock.model.vo.PageParam;
 import com.market.stock.model.vo.PageVo;
+import com.market.stock.service.impl.StockServiceImpl;
 import com.market.stock.util.SqlCondition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.StatementCreatorUtils;
 import org.springframework.stereotype.Repository;
@@ -22,6 +25,8 @@ import com.market.stock.model.po.DailyIndex;
 public class DailyIndexDaoImpl extends BaseDao implements DailyIndexDao {
 
     private static final String INSERT_SQL = "insert into daily_index(code, date, opening_price, pre_closing_price, highest_price, closing_price, lowest_price, trading_volume, trading_value, rurnover_rate) values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    private final Logger logger = LoggerFactory.getLogger(StockServiceImpl.class);
 
     @Override
     public void save(List<DailyIndex> list) {
@@ -65,6 +70,8 @@ public class DailyIndexDaoImpl extends BaseDao implements DailyIndexDao {
 
         List<DailyIndexVo> list = jdbcTemplate.query(dataSqlCondition.toSql(),
                 BeanPropertyRowMapper.newInstance(DailyIndexVo.class), dataSqlCondition.toArgs());
+        logger.info("DailyIndexDaoImpl sql: {}", sql);
+        logger.info("DailyIndexDaoImpl return num : {}", list.size());
         return new PageVo<>(list, totalRecords);
     }
 

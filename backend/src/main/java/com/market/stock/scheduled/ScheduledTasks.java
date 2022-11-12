@@ -80,7 +80,7 @@ public class ScheduledTasks {
     /**
      * update of daily index
      */
-    @Scheduled(cron = "0 0 17,18,19 ? * MON-FRI")
+    @Scheduled(cron = "0 1 17,18,19 ? * MON-FRI")
     public void runUpdateOfDailyIndex() {
         if (isNotBusinessDate()) {
             return;
@@ -97,7 +97,7 @@ public class ScheduledTasks {
     /**
      * ticker
      */
-    @Scheduled(cron = "0,15,30,45 * 9,10,11,13,14 ? * MON-FRI")
+    @Scheduled(cron = "0,1,30,45 * 9,10,11,13,14 ? * MON-FRI")
     public void runTicker() {
         if (isNotBusinessTime()) {
              return;
@@ -136,7 +136,7 @@ public class ScheduledTasks {
         return !holidayCalendarService.isBusinessDate(DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH));
     }
 
-    private void executeTask(List<ExecuteInfo> list) {
+    private void executeTask(List<ExecuteInfo> list) throws Exception {
         for (ExecuteInfo executeInfo : list) {
             taskService.executeTask(executeInfo);
         }

@@ -13,7 +13,7 @@ public interface TaskService {
 
     List<ExecuteInfo> getPendingTaskListById(int... id);
 
-    void executeTask(ExecuteInfo executeInfo);
+    void executeTask(ExecuteInfo executeInfo) throws Exception;
 
     PageVo<TaskVo> getAllTask(PageParam pageParam);
 

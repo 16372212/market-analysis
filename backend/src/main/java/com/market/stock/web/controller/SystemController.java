@@ -35,11 +35,22 @@ public class SystemController extends BaseController {
     @Autowired
     private SystemConfigService systemConfigService;
 
+    /**
+     * 得到所有的定时任务
+     * @param pageParam
+     * @return
+     */
     @RequestMapping("taskList")
     public PageVo<TaskVo> getTaskList(PageParam pageParam) {
         return taskService.getAllTask(pageParam);
     }
 
+    /**
+     * 改变定时任务状态为自动执行。任务状态一旦改为`执行态2`后，便开始自动执行任务
+     * @param id
+     * @param state
+     * @return
+     */
     @PostMapping("changeTaskState")
     public CommonResponse changeTaskState(int id, int state) {
         FieldInputException e = null;
@@ -60,8 +71,14 @@ public class SystemController extends BaseController {
         return CommonResponse.buildResponse("success");
     }
 
+    /**
+     * 用户手动执行某任务
+     * @param id
+     * @return
+     * @throws Exception
+     */
     @PostMapping("executeTask")
-    public CommonResponse executeTask(int id) {
+    public CommonResponse executeTask(int id) throws Exception {
         List<ExecuteInfo> list = taskService.getTaskListById(id);
         for (ExecuteInfo executeInfo : list) {
             taskService.executeTask(executeInfo);
@@ -97,5 +114,6 @@ public class SystemController extends BaseController {
         List<SystemConfig> list = systemConfigService.getAll();
         return new PageVo<>(subList(list, pageParam), list.size());
     }
+
 
 }

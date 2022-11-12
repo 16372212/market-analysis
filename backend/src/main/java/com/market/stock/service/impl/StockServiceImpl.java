@@ -19,6 +19,7 @@ import com.market.stock.model.vo.PageParam;
 import com.market.stock.model.vo.PageVo;
 import com.market.stock.parser.DailyIndexParser;
 import com.market.stock.util.StockConsts;
+import com.market.stock.web.controller.StockInfoController;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
