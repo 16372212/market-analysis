@@ -26,4 +26,8 @@ public class SystemConfigDaoImpl extends BaseDao implements SystemConfigDao {
         return jdbcTemplate.query(SQL_SELECT_BASE_COLUMNS, BeanPropertyRowMapper.newInstance(SystemConfig.class));
     }
 
+    @Override
+    public void updateState(int state, int id) {
+        jdbcTemplate.update("update system_config set state = ? where id = ?", state, id);
+    }
 }

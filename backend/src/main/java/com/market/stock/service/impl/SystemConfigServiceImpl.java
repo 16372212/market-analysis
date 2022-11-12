@@ -26,4 +26,8 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         return systemConfigDao.getAll();
     }
 
+    @Override
+    public void changeConfigState(int state, int id) {
+        systemConfigDao.updateState(state, id);
+    }
 }

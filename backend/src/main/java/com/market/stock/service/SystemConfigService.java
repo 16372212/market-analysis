@@ -10,4 +10,5 @@ public interface SystemConfigService {
 
     List<SystemConfig> getAll();
 
+    void changeConfigState(int state, int id);
 }

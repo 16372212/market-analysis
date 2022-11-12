@@ -8,6 +8,7 @@ public class StockSelected extends BaseModel {
 
     private String code;
     private BigDecimal rate;
+    private String name;
     private String description;
 
     public String getCode() {
@@ -24,6 +25,14 @@ public class StockSelected extends BaseModel {
 
     public void setRate(BigDecimal rate) {
         this.rate = rate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {

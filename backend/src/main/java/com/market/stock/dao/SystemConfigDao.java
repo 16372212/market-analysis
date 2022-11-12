@@ -10,4 +10,6 @@ public interface SystemConfigDao {
 
     List<SystemConfig> getAll();
 
+    void updateState(int state, int id);
+
 }

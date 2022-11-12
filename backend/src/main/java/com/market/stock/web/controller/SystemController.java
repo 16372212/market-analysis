@@ -109,11 +109,37 @@ public class SystemController extends BaseController {
         return CommonResponse.buildResponse("success");
     }
 
+    /**
+     * 现实系统支持的所有数据源
+     * @param pageParam
+     * @return
+     */
     @RequestMapping("configList")
     public PageVo<SystemConfig> getSystemConfigList(PageParam pageParam) {
         List<SystemConfig> list = systemConfigService.getAll();
         return new PageVo<>(subList(list, pageParam), list.size());
     }
 
-
+    /**
+     * 修改数据源状态。用户选择使用哪些数据源，选定后修改状态为1即为该数据源可用
+     * @param state
+     * @param id
+     * @return
+     */
+    @PostMapping("changeConfigState")
+    public CommonResponse ChangeConfigState(int state, int id) {
+        FieldInputException e = null;
+        if (state != 0 && state != 2) {
+            e = new FieldInputException();
+            e.addError("state", "state invalid");
+        }
+        if (id < 0) {
+            if (e == null) {
+                e = new FieldInputException();
+            }
+            e.addError("id", "id invalid");
+        }
+        systemConfigService.changeConfigState(state, id);
+        return CommonResponse.buildResponse("success");
+    }
 }
