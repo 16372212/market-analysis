@@ -87,8 +87,8 @@ public class StockCrawlerServiceImpl implements StockCrawlerService {
     }
 
     @Override
-    public String getHistoryDailyIndexsStringFrom163(String code, int year, int season) {
-        return HttpUtil.sendGet(httpClient, String.format("https://quotes.money.163.com/trade/lsjysj_%s.html?year=%d&season=%d", code, year, season));
+    public String getHistoryDailyIndexsStringFromSina(String code, int year, int season) {
+        return HttpUtil.sendGet(httpClient, String.format("http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=%d&scale=5&ma=5&datalen=500", code));
     }
 
 }

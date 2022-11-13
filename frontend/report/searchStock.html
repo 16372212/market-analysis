@@ -49,6 +49,35 @@
                     alert(' openingPrice: '+ res.preClosingPrice + '\n openingPrice' + res.openingPrice + '\n highestPrice' + res.highestPrice + '\n lowestPrice' + res.lowestPrice + '\n closingPrice' +
                     res.closingPrice);
 
+                    
+                    // create script tag
+                    var loadScript = function (url,cb) {
+                        var script = document.createElement('script');
+                        script.src = url;
+                        var firstScript = document.getElementsByTagName('script')[0];
+                        firstScript.parentNode.insertBefore(script,firstScript);
+
+                        // script 加载完毕后调用方法
+                        script.onload = script.onreadystatechange = function(){
+                            if( ! this.readyState     //这是FF的判断语句，因为ff下没有readyState这个值，IE的readyState肯定有值
+                                || this.readyState=='loaded' || this.readyState=='complete'   // 这是IE的判断语句
+                            ){
+                                cb && cb()
+                            }
+                        };
+                    }
+                    
+                    var searchKey = myform.userName.value;
+                    var url = './kdata/'+searchKey.substring(0,2)+'/'+searchKey.substring(2)+'.js';
+                    console.log(url);
+                    loadScript(url,()=>{
+                        var kChart = echarts.init(document.getElementById('k-content')); 
+        kChart.setOption(initKOption(kdata));
+                    });
+
+        //             var kChart = echarts.init(document.getElementById('k-content')); 
+        // kChart.setOption(initKOption(kdata)); 
+
                     if (result.resultCode == 200) {
                         alert("SUCCESS");
                     };
@@ -58,24 +87,45 @@
     </script>
 </head>
 
+<style type="text/css">   
+	/* body{margin: 0;padding: 0;}  */
+	.Kline-div{
+		position: fixed;
+        width: 100%;
+        height: 100%;
+		bottom: 0;
+        top: 20%; 
+	}
+	.Kline-div .m-line{height: 49%;width: 100%;margin-bottom: 1%;} 
+	.Kline-div .K-line{height: 50%;width: 100%;height: 100%;}   
+</style>  
+
 
 <body>
     <div id="head" class="head"></div>
     <div class="container">
-    <div class="innerBox">
-    <ul class="menu-nav">
-    </ul>
+        <div class="innerBox">
+            <ul class="menu-nav">
+            </ul>
 
-    <form id="form1" name="myform" onsubmit="return false" action="##" method="post">
-        <p>股票代码：<input name="userName" type="text" id="txtUserName" tabindex="1" size="15" value=""/><input type="button" value="搜索" onclick="search()">&nbsp;</p>
-    </form>
-
-
+            <form id="form1" name="myform" onsubmit="return false" action="##" method="post">
+                <p>股票代码：<input name="userName" type="text" id="txtUserName" tabindex="1" size="15" value=""/><input type="button" value="搜索" onclick="search()">&nbsp;</p>
+            </form>
+        </div>
     </div>
-</div>
 
-<div id="foot" class="foot"></div>
+    <div id="foot" class="foot"></div>
 
+    <div id="Kline-div" class="Kline-div"> 
+        <!-- <div id="m-line" class="m-line"></div> -->
+        <div id="k-content" class="K-line"></div> 
+    </div>
+
+
+    <script src="js/jquery-3.3.1.min.js"></script> 
+	<script src="js/echarts.min.js" type="text/javascript" charset="utf-8"></script>   
+	<!-- <script src="js/tmpData.js" type="text/javascript" charset="utf-8"></script> -->
+	<script src="js/k-line.js" type="text/javascript" charset="utf-8"></script>
 </body>
 
 </html>

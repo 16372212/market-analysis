@@ -111,8 +111,19 @@ public class StockInfoController extends BaseController {
         }
     }
 
+    /**
+     * 用户获取所有股票表单
+     * @return
+     */
     @RequestMapping(value="selectStock/list", method=RequestMethod.GET)
     public PageVo<StockSelected> SelectedStockList() {
         return new PageVo<>(stockSelectedService.getList(), 10);
+    }
+
+
+    @RequestMapping(value="history", method=RequestMethod.GET)
+    public CommonResponse saveHistoryDailyIndex(){
+        stockService.saveDailyIndexToFile("/Users/zhenziyang/Documents/Git Workspace/market-analysis/frontend/report/kdata");
+        return CommonResponse.buildResponse("success");
     }
 }

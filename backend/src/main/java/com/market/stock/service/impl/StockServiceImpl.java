@@ -3,6 +3,8 @@ package com.market.stock.service.impl;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +21,6 @@ import com.market.stock.model.vo.PageParam;
 import com.market.stock.model.vo.PageVo;
 import com.market.stock.parser.DailyIndexParser;
 import com.market.stock.util.StockConsts;
-import com.market.stock.web.controller.StockInfoController;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,10 +144,28 @@ public class StockServiceImpl implements StockService {
         list.forEach(stockInfo -> {
             logger.info("start save {}: {}", stockInfo.getName(), stockInfo.getCode());
             try {
-                File file = new File(root, stockInfo.getExchange() + "/" + stockInfo.getCode() + ".txt");
+                File file = new File(root, stockInfo.getExchange() + "/" + stockInfo.getCode() + ".js");
                 if (file.length() < 5 * 1024) {
-                    String content = stockCrawlerService.getHistoryDailyIndexsString(stockInfo.getCode());
+                    // String content = stockCrawlerService.getHistoryDailyIndexsString(stockInfo.getCode());
+                    List<DailyIndex> resultList = stockCrawlerService.getHistoryDailyIndexs(stockInfo.getCode());
+                    List<List<String>> cont = new ArrayList<>();
+                    resultList.forEach(dailyIndex -> {
+                        List<String> temp = new ArrayList<>();
+
+                        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
+                        String transformDate=simpleDateFormat.format(dailyIndex.getDate());
+                        temp.add("'" + transformDate + "'");
+
+                        temp.add(dailyIndex.getOpeningPrice().toString());
+                        temp.add(dailyIndex.getClosingPrice().toString());
+                        temp.add(dailyIndex.getLowestPrice().toString());
+                        temp.add(dailyIndex.getHighestPrice().toString());
+                        temp.add(dailyIndex.getPreClosingPrice().toString());
+                        cont.add(temp);
+                    });
                     try (FileWriter out = new FileWriter(file)) {
+
+                        String content = "var kdata = " + cont + "; var mdata = {};";
                         FileCopyUtils.copy(content, out);
                     }
                 }
@@ -272,7 +291,7 @@ public class StockServiceImpl implements StockService {
             try {
                 int year = date / 100;
                 int season = (date % 100 - 1) / 3 + 1;
-                String content = stockCrawlerService.getHistoryDailyIndexsStringFrom163(stockInfo.getCode(), year, season);
+                String content = stockCrawlerService.getHistoryDailyIndexsStringFromSina(stockInfo.getCode(), year, season);
                 List<DailyIndex> dailyIndexList = dailyIndexParser.parse163HistoryDailyIndexList(content);
                 dailyIndexList.forEach(d -> d.setCode(stockInfo.getFullCode()));
                 dailyIndexDao.save(dailyIndexList);
